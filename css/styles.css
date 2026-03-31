@@ -1,0 +1,439 @@
+:root {
+    --bg-main: #F2F9F1;
+    --bg-soft: #ABD1D9;
+    --accent: #4A7296;
+    --accent-strong: #213354;
+    --accent-pop: #C64363;
+    --surface: #FCFEFC;
+    --surface-muted: #E7F2F4;
+    --border-soft: rgba(33, 51, 84, 0.14);
+    --shadow-soft: rgba(33, 51, 84, 0.12);
+    --text-main: #213354;
+    --text-muted: rgba(33, 51, 84, 0.72);
+    --white: #FFFFFF;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+.navbar {
+    background-color: var(--accent-strong);
+    color: var(--white);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.navbar h1 {
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.navbar ul {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    gap: 1rem;
+}
+
+.navbar a {
+    color: var(--white);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.navbar a:hover,
+.navbar a.active {
+    background-color: rgba(171, 209, 217, 0.22);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 2rem;
+}
+
+h2 {
+    margin-bottom: 2rem;
+    color: var(--accent-strong);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 10px 24px var(--shadow-soft);
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 2.5rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.stat-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.section {
+    background: var(--surface);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 10px 24px var(--shadow-soft);
+    margin-bottom: 2rem;
+}
+
+.section h3 {
+    margin-bottom: 1rem;
+    color: var(--accent-strong);
+}
+
+.book-card {
+    background: var(--surface-muted);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--accent-pop);
+}
+
+.book-card h4 {
+    color: var(--accent-strong);
+    margin-bottom: 0.5rem;
+}
+
+.book-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0.3rem 0;
+}
+
+.progress-bar {
+    background: rgba(170, 179, 150, 0.28);
+    height: 20px;
+    border-radius: 10px;
+    margin: 1rem 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background: var(--accent);
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.filter-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 5px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background-color: var(--accent-pop);
+    color: var(--white);
+}
+
+.btn-secondary {
+    background-color: var(--accent);
+    color: var(--white);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--accent-strong);
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border-soft);
+    border-radius: 5px;
+    font-size: 1rem;
+    background: var(--surface);
+    color: var(--text-main);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(171, 209, 217, 0.4);
+}
+
+.book-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.book-item {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-soft);
+    box-shadow: 0 10px 24px var(--shadow-soft);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.book-info h4 {
+    color: var(--accent-strong);
+    margin-bottom: 0.5rem;
+}
+
+.book-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.book-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+}
+
+.btn-danger {
+    background-color: var(--accent-strong);
+    color: var(--white);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-want {
+    background-color: rgba(198, 67, 99, 0.14);
+    color: var(--accent-pop);
+}
+
+.status-reading {
+    background-color: var(--accent);
+    color: var(--white);
+}
+
+.status-finished {
+    background-color: var(--accent-strong);
+    color: var(--white);
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.icon-small {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+.stat-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 12px;
+    stroke: var(--accent);
+}
+
+h2 .icon,
+h3 .icon-small {
+    vertical-align: middle;
+}
+
+.btn .icon-small {
+    margin-right: 6px;
+}
+
+label .icon-small {
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.goal-card {
+    background: var(--surface-muted);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--accent-pop);
+}
+
+.goal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.goal-percentage {
+    font-size: 1.2rem;
+    color: var(--accent-pop);
+    font-weight: 600;
+}
+
+#goalsProgress h3 {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+}
+
+#goalsProgress p {
+    text-align: center;
+    color: var(--text-muted);
+}
+
+#goalsProgress a {
+    color: var(--accent-pop);
+    text-decoration: none;
+}
+
+#goalsProgress a:hover {
+    text-decoration: underline;
+}
+
+.info-text {
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--surface-muted);
+    border-radius: 5px;
+    border-left: 3px solid var(--accent-pop);
+}
+
+.form-group small {
+    display: block;
+    margin-top: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.tips {
+    background: rgba(171, 209, 217, 0.22);
+    border-left: 4px solid var(--accent);
+}
+
+.tips h3 {
+    color: var(--accent);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.tips ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+}
+
+.tips li {
+    padding: 0.5rem 0;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 0 1rem;
+    }
+
+    .navbar {
+        padding: 1rem;
+        align-items: flex-start;
+    }
+
+    .book-item,
+    .goal-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .book-actions,
+    .quick-actions,
+    .form-actions {
+        width: 100%;
+    }
+
+    .book-actions .btn,
+    .quick-actions .btn,
+    .form-actions .btn {
+        width: 100%;
+    }
+}

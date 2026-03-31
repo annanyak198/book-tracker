@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Goals - Book Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <h1>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+            Book Tracker
+        </h1>
+        <ul>
+            <li><a href="index.html">Dashboard</a></li>
+            <li><a href="books.html">My Books</a></li>
+            <li><a href="add-book.html">Add Book</a></li>
+            <li><a href="stats.html">Statistics</a></li>
+            <li><a href="goals.html" class="active">Goals</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Reading Goals
+        </h2>
+        
+        <div class="section">
+            <p class="info-text">Set your monthly and yearly book goals to track your progress!</p>
+            
+            <form id="goalsForm">
+                <div class="form-group">
+                    <label for="monthlyGoal">
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Monthly Books Goal
+                    </label>
+                    <input type="number" id="monthlyGoal" min="0" placeholder="e.g., 4">
+                    <small>How many books do you want to finish this month?</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="yearlyGoal">
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Yearly Books Goal
+                    </label>
+                    <input type="number" id="yearlyGoal" min="0" placeholder="e.g., 24">
+                    <small>How many books do you want to finish this year?</small>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        Save Goals
+                    </button>
+                    <a href="index.html" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="section tips">
+            <h3>
+                <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                Tips for Setting Goals
+            </h3>
+            <ul>
+                <li>Start with achievable goals based on your current reading habits</li>
+                <li>Start with a goal that matches your current reading pace</li>
+                <li>One or two books per month is a great goal if you are building the habit</li>
+                <li>Set your goal to 0 to disable goal tracking</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
