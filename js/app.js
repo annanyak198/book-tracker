@@ -77,6 +77,23 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function promptForBookRating(bookTitle) {
+    const input = prompt(`You finished "${bookTitle}"! Give it a rating from 1 to 5, or leave blank to skip.`);
+
+    if (input === null || input.trim() === '') {
+        return 0;
+    }
+
+    const rating = parseInt(input, 10);
+
+    if (isNaN(rating) || rating < 1 || rating > 5) {
+        alert('Please enter a whole number from 1 to 5.');
+        return null;
+    }
+
+    return rating;
+}
+
 
 // ============================================================
 // 2. FIX OLD FINISHED BOOKS
@@ -273,6 +290,13 @@ function addBook(e) {
     };
 
     const books = getBooks();
+    if (status === 'finished') {
+        const rating = promptForBookRating(title);
+        if (rating === null) {
+            return;
+        }
+        newBook.rating = rating;
+    }
     books.push(newBook);
     saveBooks(books);
 
@@ -335,6 +359,7 @@ function displayBooks(filter) {
         const safeTitle = escapeHtml(book.title);
         const safeNotes = escapeHtml(book.notes || '');
         const rating = Number(book.rating) || 0;
+        const showReviewFields = book.status === 'finished';
         const stars = [1, 2, 3, 4, 5].map(value => `
             <button
                 type="button"
@@ -353,23 +378,27 @@ function displayBooks(filter) {
                     <span class="status-badge status-${book.status}">
                         ${statusText[book.status] || book.status}
                     </span>
-                    <div class="book-meta">
-                        <div class="rating-row">
-                            <span class="meta-label">Rating</span>
-                            <div class="rating-stars" role="group" aria-label="Rating for ${safeTitle}">
-                                ${stars}
+                    ${showReviewFields ? `
+                        <div class="book-meta">
+                            <div class="rating-row">
+                                <span class="meta-label">Rating</span>
+                                <div class="rating-stars" role="group" aria-label="Rating for ${safeTitle}">
+                                    ${stars}
+                                </div>
+                                <span class="rating-value">${rating ? `${rating}/5` : 'Not rated'}</span>
                             </div>
-                            <span class="rating-value">${rating ? `${rating}/5` : 'Not rated'}</span>
+                            <label class="notes-field" for="notes-${book.id}">Notes</label>
+                            <textarea id="notes-${book.id}" class="book-notes-input" placeholder="Add your thoughts, favorite quotes, or reminders...">${safeNotes}</textarea>
                         </div>
-                        <label class="notes-field" for="notes-${book.id}">Notes</label>
-                        <textarea id="notes-${book.id}" class="book-notes-input" placeholder="Add your thoughts, favorite quotes, or reminders...">${safeNotes}</textarea>
-                    </div>
+                    ` : ''}
                 </div>
                 <div class="book-actions">
                     ${book.status !== 'finished'
                         ? `<button class="btn btn-small btn-primary" onclick="logProgress(${book.id})">Log Progress</button>`
                         : ''}
-                    <button class="btn btn-small btn-secondary" onclick="saveBookNotes(${book.id})">Save Notes</button>
+                    ${showReviewFields
+                        ? `<button class="btn btn-small btn-secondary" onclick="saveBookNotes(${book.id})">Save Notes</button>`
+                        : ''}
                     <button class="btn btn-small btn-danger" onclick="deleteBook(${book.id})">Delete</button>
                 </div>
             </div>`;
@@ -425,6 +454,10 @@ function logProgress(bookId) {
     if (books[bookIndex].currentPage >= books[bookIndex].totalPages) {
         books[bookIndex].status     = 'finished';
         books[bookIndex].finishDate = new Date().toISOString().split('T')[0];
+        const rating = promptForBookRating(book.title);
+        if (rating !== null) {
+            books[bookIndex].rating = rating;
+        }
         alert('Congratulations! You finished the book!');
     } else {
         alert('Progress logged!');
