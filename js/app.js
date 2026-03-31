@@ -68,6 +68,15 @@ function saveGoals(goals) {
     }
 }
 
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 
 // ============================================================
 // 2. FIX OLD FINISHED BOOKS
@@ -258,7 +267,9 @@ function addBook(e) {
         currentPage: status === 'finished' ? totalPages : 0,
         status:      status,
         startDate:   today,
-        finishDate:  status === 'finished' ? today : null
+        finishDate:  status === 'finished' ? today : null,
+        rating:      0,
+        notes:       ''
     };
 
     const books = getBooks();
@@ -286,6 +297,7 @@ function addBook(e) {
 // ============================================================
 
 let currentFilter = 'all';
+let currentSort = 'default';
 
 function displayBooks(filter) {
     filter = filter || currentFilter || 'all';
@@ -302,6 +314,12 @@ function displayBooks(filter) {
         books = books.filter(b => b.status === filter);
     }
 
+    if (currentSort === 'rating-desc') {
+        books.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0));
+    } else if (currentSort === 'rating-asc') {
+        books.sort((a, b) => (Number(a.rating) || 0) - (Number(b.rating) || 0));
+    }
+
     if (books.length === 0) {
         bookListDiv.innerHTML = '<p>No books found. <a href="add-book.html">Add your first book!</a></p>';
         return;
@@ -314,6 +332,17 @@ function displayBooks(filter) {
         const progress    = book.totalPages > 0
             ? Math.round((displayPage / book.totalPages) * 100)
             : 0;
+        const safeTitle = escapeHtml(book.title);
+        const safeNotes = escapeHtml(book.notes || '');
+        const rating = Number(book.rating) || 0;
+        const stars = [1, 2, 3, 4, 5].map(value => `
+            <button
+                type="button"
+                class="rating-star ${value <= rating ? 'is-active' : ''}"
+                onclick="updateBookRating(${book.id}, ${value})"
+                aria-label="Rate ${safeTitle} ${value} out of 5"
+            >&#9733;</button>
+        `).join('');
 
         return `
             <div class="book-item">
@@ -324,11 +353,23 @@ function displayBooks(filter) {
                     <span class="status-badge status-${book.status}">
                         ${statusText[book.status] || book.status}
                     </span>
+                    <div class="book-meta">
+                        <div class="rating-row">
+                            <span class="meta-label">Rating</span>
+                            <div class="rating-stars" role="group" aria-label="Rating for ${safeTitle}">
+                                ${stars}
+                            </div>
+                            <span class="rating-value">${rating ? `${rating}/5` : 'Not rated'}</span>
+                        </div>
+                        <label class="notes-field" for="notes-${book.id}">Notes</label>
+                        <textarea id="notes-${book.id}" class="book-notes-input" placeholder="Add your thoughts, favorite quotes, or reminders...">${safeNotes}</textarea>
+                    </div>
                 </div>
                 <div class="book-actions">
                     ${book.status !== 'finished'
                         ? `<button class="btn btn-small btn-primary" onclick="logProgress(${book.id})">Log Progress</button>`
                         : ''}
+                    <button class="btn btn-small btn-secondary" onclick="saveBookNotes(${book.id})">Save Notes</button>
                     <button class="btn btn-small btn-danger" onclick="deleteBook(${book.id})">Delete</button>
                 </div>
             </div>`;
@@ -347,6 +388,11 @@ function filterBooks(status, clickedBtn) {
         clickedBtn.classList.remove('btn-secondary');
         clickedBtn.classList.add('btn-primary');
     }
+}
+
+function setBookSort(sortValue) {
+    currentSort = sortValue || 'default';
+    displayBooks(currentFilter);
 }
 
 
@@ -397,6 +443,35 @@ function logProgress(bookId) {
 
     if (document.getElementById('currentlyReading')) displayDashboard();
     if (document.getElementById('bookList'))          displayBooks(currentFilter);
+}
+
+function updateBookRating(bookId, rating) {
+    const books = getBooks();
+    const bookIndex = books.findIndex(b => b.id === bookId);
+
+    if (bookIndex === -1) {
+        alert('Book not found!');
+        return;
+    }
+
+    books[bookIndex].rating = rating;
+    saveBooks(books);
+    displayBooks(currentFilter);
+}
+
+function saveBookNotes(bookId) {
+    const books = getBooks();
+    const bookIndex = books.findIndex(b => b.id === bookId);
+    const notesField = document.getElementById(`notes-${bookId}`);
+
+    if (bookIndex === -1 || !notesField) {
+        alert('Unable to save notes for this book.');
+        return;
+    }
+
+    books[bookIndex].notes = notesField.value.trim();
+    saveBooks(books);
+    alert('Notes saved!');
 }
 
 

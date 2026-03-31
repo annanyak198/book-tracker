@@ -39,6 +39,15 @@
             <button class="btn btn-small btn-secondary" id="btn-finished" onclick="filterBooks('finished', this)">Finished</button>
             <button class="btn btn-small btn-secondary" id="btn-want" onclick="filterBooks('want', this)">Want to Read</button>
         </div>
+
+        <div class="sort-controls">
+            <label for="sortBooks">Sort by</label>
+            <select id="sortBooks" onchange="setBookSort(this.value)">
+                <option value="default">Default order</option>
+                <option value="rating-desc">Highest rated</option>
+                <option value="rating-asc">Lowest rated</option>
+            </select>
+        </div>
         
         <div class="section">
             <div id="bookList" class="book-list">
