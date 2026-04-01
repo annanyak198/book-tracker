@@ -77,6 +77,52 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function createEmptyState(title, message, actionHref, actionLabel) {
+    return `
+        <div class="empty-state">
+            <p class="empty-state-title">${title}</p>
+            <p>${message}</p>
+            ${actionHref && actionLabel ? `<a class="btn btn-secondary btn-small" href="${actionHref}">${actionLabel}</a>` : ''}
+        </div>
+    `;
+}
+
+function getPreferredTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+        return savedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
+function updateThemeToggleLabel(theme) {
+    const label = document.querySelector('[data-theme-label]');
+    if (label) {
+        label.textContent = theme === 'dark' ? 'Dark mode' : 'Light mode';
+    }
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    updateThemeToggleLabel(theme);
+}
+
+function toggleTheme() {
+    const nextTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('theme', nextTheme);
+    applyTheme(nextTheme);
+}
+
+function initializeTheme() {
+    applyTheme(getPreferredTheme());
+
+    const toggle = document.getElementById('themeToggle');
+    if (toggle) {
+        toggle.addEventListener('click', toggleTheme);
+    }
+}
+
 function promptForBookRating(bookTitle) {
     const input = prompt(`You finished "${bookTitle}"! Give it a rating from 1 to 5, or leave blank to skip.`);
 
@@ -222,7 +268,12 @@ function displayDashboard() {
 
         goalsDiv.innerHTML = html;
     } else if (goalsDiv) {
-        goalsDiv.innerHTML = '<p>No reading goals set. <a href="goals.html">Set your goals!</a></p>';
+        goalsDiv.innerHTML = createEmptyState(
+            'No reading goals yet',
+            'Set monthly or yearly goals to turn your dashboard into a real reading scoreboard.',
+            'goals.html',
+            'Set goals'
+        );
     }
 
     // currently reading section
@@ -230,7 +281,12 @@ function displayDashboard() {
     if (!div) return;
 
     if (readingBooks.length === 0) {
-        div.innerHTML = '<p>No books in progress. <a href="add-book.html">Add a book!</a></p>';
+        div.innerHTML = createEmptyState(
+            'Nothing in progress',
+            'Add a new title to start building momentum and see progress here.',
+            'add-book.html',
+            'Add a book'
+        );
         return;
     }
 
@@ -345,7 +401,12 @@ function displayBooks(filter) {
     }
 
     if (books.length === 0) {
-        bookListDiv.innerHTML = '<p>No books found. <a href="add-book.html">Add your first book!</a></p>';
+        bookListDiv.innerHTML = createEmptyState(
+            'Your shelf is empty',
+            'Start by adding your first book and this page will become your reading hub.',
+            'add-book.html',
+            'Add your first book'
+        );
         return;
     }
 
@@ -356,6 +417,9 @@ function displayBooks(filter) {
         const progress    = book.totalPages > 0
             ? Math.round((displayPage / book.totalPages) * 100)
             : 0;
+        const pagesText = book.status === 'want'
+            ? `${book.totalPages} pages`
+            : `${displayPage} / ${book.totalPages} pages (${progress}%)`;
         const safeTitle = escapeHtml(book.title);
         const safeNotes = escapeHtml(book.notes || '');
         const rating = Number(book.rating) || 0;
@@ -374,7 +438,7 @@ function displayBooks(filter) {
                 <div class="book-info">
                     <h4>${book.title}</h4>
                     <p>by ${book.author}</p>
-                    <p>${displayPage} / ${book.totalPages} pages (${progress}%)</p>
+                    <p>${pagesText}</p>
                     <span class="status-badge status-${book.status}">
                         ${statusText[book.status] || book.status}
                     </span>
@@ -436,20 +500,34 @@ function logProgress(bookId) {
     if (bookIndex === -1) { alert('Book not found!'); return; }
 
     const book  = books[bookIndex];
-    const input = prompt(`How many pages did you read today for "${book.title}"?`);
+    const input = prompt(`What page are you on now in "${book.title}"? Enter your total pages read so far.`);
 
     if (input === null || input === '') return;
 
-    const pages = parseInt(input);
-    if (isNaN(pages) || pages <= 0) {
-        alert('Please enter a valid number of pages.');
+    const newCurrentPage = parseInt(input, 10);
+    if (isNaN(newCurrentPage) || newCurrentPage <= 0) {
+        alert('Please enter a valid page number.');
         return;
     }
 
-    books[bookIndex].currentPage = Math.min(
-        books[bookIndex].currentPage + pages,
-        books[bookIndex].totalPages
-    );
+    if (newCurrentPage > books[bookIndex].totalPages) {
+        alert(`This book has ${books[bookIndex].totalPages} pages. Enter a page number within that range.`);
+        return;
+    }
+
+    if (newCurrentPage < books[bookIndex].currentPage) {
+        alert(`You are already logged at page ${books[bookIndex].currentPage}. Enter your current total page or a higher number.`);
+        return;
+    }
+
+    if (newCurrentPage === books[bookIndex].currentPage) {
+        alert('That progress is already saved.');
+        return;
+    }
+
+    const pagesReadThisSession = newCurrentPage - books[bookIndex].currentPage;
+
+    books[bookIndex].currentPage = newCurrentPage;
 
     if (books[bookIndex].currentPage >= books[bookIndex].totalPages) {
         books[bookIndex].status     = 'finished';
@@ -470,7 +548,7 @@ function logProgress(bookId) {
         id:        Date.now(),
         bookId:    bookId,
         date:      new Date().toISOString().split('T')[0],
-        pagesRead: pages
+        pagesRead: pagesReadThisSession
     });
     saveLogs(logs);
 
@@ -556,23 +634,104 @@ function displayStats() {
     const totalFinished     = books.filter(b => b.status === 'finished').length;
     const totalPagesAllTime = logs.reduce((sum, l) => sum + (l.pagesRead || 0), 0);
     const totalSessions     = logs.length;
+    const completionRate    = totalBooks > 0 ? Math.round((totalFinished / totalBooks) * 100) : 0;
+    const bestSession       = logs.reduce((max, log) => Math.max(max, log.pagesRead || 0), 0);
+    const ratedBooks        = books.filter(b => b.status === 'finished' && Number(b.rating) > 0);
+    const averageRating     = ratedBooks.length > 0
+        ? (ratedBooks.reduce((sum, book) => sum + Number(book.rating || 0), 0) / ratedBooks.length).toFixed(1)
+        : '0.0';
+
+    const statsSummary = document.getElementById('statsSummary');
+    if (statsSummary) {
+        statsSummary.innerHTML = `
+            <div class="hero-metric">${totalFinished}</div>
+            <p class="hero-metric-label">books completed overall</p>
+            <p class="hero-metric-note">${completionRate}% of your library is finished.</p>
+        `;
+    }
 
     const monthlyDiv = document.getElementById('monthlyStats');
     if (monthlyDiv) {
         monthlyDiv.innerHTML = `
-            <div class="stat-card"><h3>${totalPagesThisMonth}</h3><p>Pages This Month</p></div>
-            <div class="stat-card"><h3>${booksFinishedThisMonth}</h3><p>Books Finished</p></div>
-            <div class="stat-card"><h3>${readingNow}</h3><p>Currently Reading</p></div>
-            <div class="stat-card"><h3>${avgPagesPerDay}</h3><p>Avg Pages / Day</p></div>`;
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="16" y1="13" x2="8" y2="13"></line>
+                    <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                <h3>${totalPagesThisMonth}</h3>
+                <p>Pages this month</p>
+                <p class="stat-trend">${monthLogs.length} reading session${monthLogs.length === 1 ? '' : 's'} logged.</p>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <h3>${booksFinishedThisMonth}</h3>
+                <p>Books finished</p>
+                <p class="stat-trend">${readingNow} title${readingNow === 1 ? '' : 's'} still in progress.</p>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                <h3>${readingNow}</h3>
+                <p>Currently reading</p>
+                <p class="stat-trend">${uniqueDays} active reading day${uniqueDays === 1 ? '' : 's'} this month.</p>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="20" x2="12" y2="10"></line>
+                    <line x1="18" y1="20" x2="18" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="16"></line>
+                </svg>
+                <h3>${avgPagesPerDay}</h3>
+                <p>Avg pages per day</p>
+                <p class="stat-trend">${bestSession} pages was your strongest session.</p>
+            </div>`;
     }
 
     const alltimeDiv = document.getElementById('alltimeStats');
     if (alltimeDiv) {
         alltimeDiv.innerHTML = `
-            <div class="stat-card"><h3>${totalBooks}</h3><p>Total Books</p></div>
-            <div class="stat-card"><h3>${totalFinished}</h3><p>Books Finished</p></div>
-            <div class="stat-card"><h3>${totalPagesAllTime}</h3><p>Total Pages Read</p></div>
-            <div class="stat-card"><h3>${totalSessions}</h3><p>Reading Sessions</p></div>`;
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+                <h3>${totalBooks}</h3>
+                <p>Total books</p>
+                <p class="stat-trend">${completionRate}% completion rate across your library.</p>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <h3>${totalFinished}</h3>
+                <p>Books finished</p>
+                <p class="stat-trend">${ratedBooks.length} finished book${ratedBooks.length === 1 ? '' : 's'} rated.</p>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+                <h3>${totalPagesAllTime}</h3>
+                <p>Total pages read</p>
+                <p class="stat-trend">${totalSessions} reading session${totalSessions === 1 ? '' : 's'} tracked.</p>
+            </div>
+            <div class="stat-card">
+                <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M12 4v16"></path>
+                    <path d="m5 12 7-8 7 8"></path>
+                </svg>
+                <h3>${averageRating}</h3>
+                <p>Average rating</p>
+                <p class="stat-trend">${ratedBooks.length > 0 ? 'Based on your rated finished books.' : 'Add ratings as you finish books.'}</p>
+            </div>`;
     }
 }
 
@@ -616,6 +775,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const page = window.location.pathname.split('/').pop();
     console.log('Page:', page);
 
+    initializeTheme();
     fixFinishedBooks();
 
     if (page === 'index.html' || page === '' || page === '/') {

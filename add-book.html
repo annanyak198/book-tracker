@@ -8,32 +8,53 @@
 </head>
 <body>
     <nav class="navbar">
-        <h1>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-            Book Tracker
-        </h1>
-        <ul>
-            <li><a href="index.html">Dashboard</a></li>
-            <li><a href="books.html">My Books</a></li>
-            <li><a href="add-book.html" class="active">Add Book</a></li>
-            <li><a href="stats.html">Statistics</a></li>
-            <li><a href="goals.html">Goals</a></li>
-        </ul>
+        <div class="brand">
+            <div class="brand-mark">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div class="brand-copy">
+                <span class="brand-kicker">Personal Library</span>
+                <h1>Book Tracker</h1>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="books.html">My Books</a></li>
+                <li><a href="add-book.html" class="active">Add Book</a></li>
+                <li><a href="stats.html">Statistics</a></li>
+                <li><a href="goals.html">Goals</a></li>
+            </ul>
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+                <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+                <span class="theme-toggle-label" data-theme-label>Light mode</span>
+            </button>
+        </div>
     </nav>
 
     <div class="container">
-        <h2>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Add New Book
-        </h2>
-        
+        <section class="page-intro">
+            <div class="page-intro-copy">
+                <span class="eyebrow">Capture</span>
+                <h2>Add New Book</h2>
+                <p>Enter the details of your book. Progress can be logged through the <a href="books.html">My Books</a> page.
+            </div>
+            <div class="hero-panel">
+                <p class="hero-metric">Organize</p>
+                <p class="hero-metric-label">Track books you plan to read, are reading now, or already finished.</p>
+            </div>
+        </section>
+
         <div class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Book Details</h3>
+                    <p class="section-subtitle">A few clean fields are enough to get the title into your workflow.</p>
+                </div>
+            </div>
             <form id="addBookForm">
                 <div class="form-group">
                     <label for="title">Book Title *</label>

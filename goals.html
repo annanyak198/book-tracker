@@ -8,32 +8,53 @@
 </head>
 <body>
     <nav class="navbar">
-        <h1>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-            </svg>
-            Book Tracker
-        </h1>
-        <ul>
-            <li><a href="index.html">Dashboard</a></li>
-            <li><a href="books.html">My Books</a></li>
-            <li><a href="add-book.html">Add Book</a></li>
-            <li><a href="stats.html">Statistics</a></li>
-            <li><a href="goals.html" class="active">Goals</a></li>
-        </ul>
+        <div class="brand">
+            <div class="brand-mark">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+                </svg>
+            </div>
+            <div class="brand-copy">
+                <span class="brand-kicker">Personal Library</span>
+                <h1>Book Tracker</h1>
+            </div>
+        </div>
+        <div class="nav-actions">
+            <ul>
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="books.html">My Books</a></li>
+                <li><a href="add-book.html">Add Book</a></li>
+                <li><a href="stats.html">Statistics</a></li>
+                <li><a href="goals.html" class="active">Goals</a></li>
+            </ul>
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+                <span class="theme-toggle-track" aria-hidden="true"><span class="theme-toggle-thumb"></span></span>
+                <span class="theme-toggle-label" data-theme-label>Light mode</span>
+            </button>
+        </div>
     </nav>
 
     <div class="container">
-        <h2>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            Reading Goals
-        </h2>
+        <section class="page-intro">
+            <div class="page-intro-copy">
+                <span class="eyebrow">Planning</span>
+                <h2>Reading Goals</h2>
+                <p>Turn vague reading intentions into targets you can actually track from the dashboard and stats pages.</p>
+            </div>
+            <div class="hero-panel">
+                <p class="hero-metric">Targets</p>
+                <p class="hero-metric-label">Monthly and yearly goals now live in a cleaner, more focused setup page.</p>
+            </div>
+        </section>
         
         <div class="section">
+            <div class="section-header">
+                <div>
+                    <h3>Goal Settings</h3>
+                    <p class="section-subtitle">Choose goals that stretch you a little without making the habit feel heavy.</p>
+                </div>
+            </div>
             <p class="info-text">Set your monthly and yearly book goals to track your progress!</p>
             
             <form id="goalsForm">
