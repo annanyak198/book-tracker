@@ -378,6 +378,22 @@ function addBook(e) {
 
 let currentFilter = 'all';
 let currentSort = 'default';
+let editingBookNotes = {};
+
+function formatLogDate(dateString) {
+    if (!dateString) return 'Unknown date';
+
+    const date = new Date(`${dateString}T00:00:00`);
+    if (Number.isNaN(date.getTime())) {
+        return escapeHtml(dateString);
+    }
+
+    return date.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
 
 function displayBooks(filter) {
     filter = filter || currentFilter || 'all';
@@ -389,6 +405,7 @@ function displayBooks(filter) {
     if (!bookListDiv) return;
 
     let books = getBooks();
+    const logs = getLogs();
 
     if (filter !== 'all') {
         books = books.filter(b => b.status === filter);
@@ -424,6 +441,26 @@ function displayBooks(filter) {
         const safeNotes = escapeHtml(book.notes || '');
         const rating = Number(book.rating) || 0;
         const showReviewFields = book.status === 'finished';
+        const showHistory = book.status !== 'want';
+        const isEditingNotes = Boolean(editingBookNotes[book.id]) || !safeNotes;
+        const bookLogs = logs
+            .filter(log => log.bookId === book.id)
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+        const logSummaryText = bookLogs.length > 0
+            ? `${bookLogs.length} log${bookLogs.length === 1 ? '' : 's'}`
+            : 'No logs yet';
+        const logMarkup = bookLogs.length > 0
+            ? `
+                <div class="book-log-list">
+                    ${bookLogs.map(log => `
+                        <div class="book-log-entry">
+                            <span class="book-log-date">${formatLogDate(log.date)}</span>
+                            <span class="book-log-pages">${escapeHtml(log.pagesRead)} page${Number(log.pagesRead) === 1 ? '' : 's'}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `
+            : `<p class="book-log-empty">No reading sessions logged for this book yet.</p>`;
         const stars = [1, 2, 3, 4, 5].map(value => `
             <button
                 type="button"
@@ -435,35 +472,60 @@ function displayBooks(filter) {
 
         return `
             <div class="book-item">
-                <div class="book-info">
-                    <h4>${book.title}</h4>
-                    <p>by ${book.author}</p>
-                    <p>${pagesText}</p>
-                    <span class="status-badge status-${book.status}">
-                        ${statusText[book.status] || book.status}
-                    </span>
-                    ${showReviewFields ? `
-                        <div class="book-meta">
-                            <div class="rating-row">
-                                <span class="meta-label">Rating</span>
-                                <div class="rating-stars" role="group" aria-label="Rating for ${safeTitle}">
-                                    ${stars}
+                <div class="book-main">
+                    <div class="book-info">
+                        <h4>${book.title}</h4>
+                        <p>by ${book.author}</p>
+                        <p>${pagesText}</p>
+                        <span class="status-badge status-${book.status}">
+                            ${statusText[book.status] || book.status}
+                        </span>
+                        ${showReviewFields ? `
+                            <div class="book-meta">
+                                <div class="rating-row">
+                                    <span class="meta-label">Rating</span>
+                                    <div class="rating-stars" role="group" aria-label="Rating for ${safeTitle}">
+                                        ${stars}
+                                    </div>
+                                    <span class="rating-value">${rating ? `${rating}/5` : 'Not rated'}</span>
                                 </div>
-                                <span class="rating-value">${rating ? `${rating}/5` : 'Not rated'}</span>
                             </div>
-                            <label class="notes-field" for="notes-${book.id}">Notes</label>
-                            <textarea id="notes-${book.id}" class="book-notes-input" placeholder="Add your thoughts, favorite quotes, or reminders...">${safeNotes}</textarea>
-                        </div>
-                    ` : ''}
+                        ` : ''}
+                        ${showHistory ? `
+                            <details class="book-logs">
+                                <summary>
+                                    <span>Reading history</span>
+                                    <span class="book-logs-summary">${logSummaryText}</span>
+                                </summary>
+                                ${logMarkup}
+                            </details>
+                        ` : ''}
+                    </div>
                 </div>
                 <div class="book-actions">
+                    ${showReviewFields ? `
+                        <div class="book-notes-panel">
+                            <p class="book-notes-title">Notes</p>
+                            ${isEditingNotes ? `
+                                <label class="notes-field" for="notes-${book.id}">Your note</label>
+                                <textarea id="notes-${book.id}" class="book-notes-input" placeholder="Add your thoughts, favorite quotes, or reminders...">${safeNotes}</textarea>
+                            ` : `
+                                <div class="book-note-card" aria-label="Saved note for ${safeTitle}">
+                                    <p>${safeNotes.replace(/\n/g, '<br>')}</p>
+                                </div>
+                            `}
+                        </div>
+                    ` : ''}
                     ${book.status !== 'finished'
                         ? `<button class="btn btn-small btn-primary" onclick="logProgress(${book.id})">Log Progress</button>`
                         : ''}
-                    ${showReviewFields
-                        ? `<button class="btn btn-small btn-secondary" onclick="saveBookNotes(${book.id})">Save Notes</button>`
-                        : ''}
                     <button class="btn btn-small btn-danger" onclick="deleteBook(${book.id})">Delete</button>
+                    ${showReviewFields
+                        ? isEditingNotes
+                            ? `<button class="btn btn-small btn-secondary" onclick="saveBookNotes(${book.id})">Save Notes</button>
+                               ${safeNotes ? `<button class="btn btn-small btn-secondary" onclick="cancelEditBookNotes(${book.id})">Cancel</button>` : ''}`
+                            : `<button class="btn btn-small btn-secondary" onclick="startEditBookNotes(${book.id})">Edit Note</button>`
+                        : ''}
                 </div>
             </div>`;
     }).join('');
@@ -570,6 +632,16 @@ function updateBookRating(bookId, rating) {
     displayBooks(currentFilter);
 }
 
+function startEditBookNotes(bookId) {
+    editingBookNotes[bookId] = true;
+    displayBooks(currentFilter);
+}
+
+function cancelEditBookNotes(bookId) {
+    delete editingBookNotes[bookId];
+    displayBooks(currentFilter);
+}
+
 function saveBookNotes(bookId) {
     const books = getBooks();
     const bookIndex = books.findIndex(b => b.id === bookId);
@@ -582,7 +654,9 @@ function saveBookNotes(bookId) {
 
     books[bookIndex].notes = notesField.value.trim();
     saveBooks(books);
+    delete editingBookNotes[bookId];
     alert('Notes saved!');
+    displayBooks(currentFilter);
 }
 
 

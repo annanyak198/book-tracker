@@ -417,6 +417,10 @@ h2 {
     gap: 0.75rem;
 }
 
+.book-actions {
+    align-items: flex-start;
+}
+
 .filter-buttons {
     margin-bottom: 1rem;
 }
@@ -530,8 +534,104 @@ h2 {
     gap: 1.25rem;
 }
 
+.book-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.book-info {
+    flex: 1;
+    min-width: 0;
+}
+
 .book-meta {
     margin-top: 1rem;
+}
+
+.book-notes-title {
+    margin-bottom: 0.55rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.book-notes-panel {
+    min-width: 0;
+}
+
+.book-logs {
+    margin-top: 1rem;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted);
+    overflow: hidden;
+}
+
+.book-logs summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.9rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    font-weight: 600;
+    color: var(--heading);
+}
+
+.book-logs summary::-webkit-details-marker {
+    display: none;
+}
+
+.book-logs summary::after {
+    content: '+';
+    font-size: 1.1rem;
+    color: var(--accent);
+}
+
+.book-logs[open] summary::after {
+    content: '-';
+}
+
+.book-logs-summary {
+    color: var(--text-muted);
+    font-size: 0.88rem;
+    font-weight: 500;
+    margin-left: auto;
+    padding-right: 0.25rem;
+}
+
+.book-log-list {
+    padding: 0 1rem 1rem;
+    display: grid;
+    gap: 0.65rem;
+}
+
+.book-log-entry {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.8rem 0.9rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+}
+
+.book-log-date {
+    font-weight: 600;
+    color: var(--heading);
+}
+
+.book-log-pages {
+    color: var(--text-muted);
+}
+
+.book-log-empty {
+    padding: 0 1rem 1rem;
+    color: var(--text-muted);
 }
 
 .rating-row {
@@ -571,6 +671,19 @@ h2 {
     min-height: 96px;
     margin-top: 0.5rem;
     resize: vertical;
+}
+
+.book-note-card {
+    padding: 0.95rem 1rem;
+    border-radius: var(--radius-sm);
+    background: var(--surface-muted);
+    border: 1px solid var(--border-soft);
+}
+
+.book-note-card p {
+    margin: 0;
+    line-height: 1.6;
+    word-break: break-word;
 }
 
 .status-badge {
@@ -711,12 +824,17 @@ h2 {
 }
 
 @media (max-width: 768px) {
+    .book-main,
     .book-item,
     .goal-header,
     .section-header,
     .nav-actions {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .book-notes-panel {
+        width: 100%;
     }
 
     .quick-actions,
